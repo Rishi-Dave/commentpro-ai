@@ -1,0 +1,34 @@
+{
+  "name": "commentpro-ai",
+  "displayName": "CommentPro AI",
+  "description": "The CommentPro AI is a tool designed to help developers write clear, concise, and comprehensive documentation for their codebases. Documentation is crucial for maintaining and scaling software projects, but it is often neglected due to time constraints or lack of motivation. This tool aims to streamline the process by automatically generating explanations for functions, classes, modules, and even entire projects, based on the code provided.",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.92.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [{
+      "command": "commentpro-ai.helloWorld",
+      "title": "Hello World"
+    }]
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.92.0",
+    "@types/mocha": "^10.0.7",
+    "@types/node": "20.x",
+    "eslint": "^8.57.0",
+    "typescript": "^5.4.5",
+    "@vscode/test-cli": "^0.0.9",
+    "@vscode/test-electron": "^2.4.0"
+  }
+}
