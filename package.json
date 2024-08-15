@@ -13,8 +13,8 @@
   "main": "./extension.js",
   "contributes": {
     "commands": [{
-      "command": "commentpro-ai.helloWorld",
-      "title": "Hello World"
+      "command": "commentpro-ai.generateDoc",
+      "title": "Generate Doc"
     }]
   },
   "scripts": {

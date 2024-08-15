@@ -1,7 +1,9 @@
+
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
-
+const { execFile } = require('child_process');
+const path = require('path');
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 
@@ -9,22 +11,47 @@ const vscode = require('vscode');
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
+	let disposable = vscode.commands.registerCommand('commentpro-ai.generateDoc', async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+            const code = editor.document.getText(editor.selection);
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "commentpro-ai" is now active!');
+            vscode.window.withProgress({
+                location: vscode.ProgressLocation.Notification,
+                title: "Generating Documentation...",
+                cancellable: false
+            }, async () => {
+                try {
+                    const pythonPath = 'python'; // Ensure 'python' is in your PATH or provide the full path to the Python executable
+                    const scriptPath = path.join(__dirname, '../python/generate_doc.py');
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with  registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('commentpro-ai.helloWorld', function () {
-		// The code you place here will be executed every time your command is executed
+                    const process = execFile(pythonPath, [scriptPath], (error, stdout, stderr) => {
+                        if (error) {
+                            vscode.window.showErrorMessage(`Failed to generate documentation: ${stderr}`);
+                            console.error(`Error: ${stderr}`);
+                            return;
+                        }
+                        vscode.window.showInformationMessage('Documentation generated successfully');
+                        editor.edit(editBuilder => {
+                            editBuilder.insert(editor.selection.end, `\n\n${stdout}`);
+                        });
+                    });
 
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from CommentPro AI!');
-	});
+                    // Send the selected code to the Python script
+                    process.stdin.write(code);
+                    process.stdin.end();
 
-	context.subscriptions.push(disposable);
+                } catch (error) {
+                    vscode.window.showErrorMessage('Failed to generate documentation');
+                    console.error('Error:', error);
+                }
+            });
+        } else {
+            vscode.window.showErrorMessage('No code selected');
+        }
+    });
+
+    context.subscriptions.push(disposable);
 }
 
 // This method is called when your extension is deactivated
