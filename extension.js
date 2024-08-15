@@ -22,19 +22,32 @@ function activate(context) {
                 cancellable: false
             }, async () => {
                 try {
-                    const pythonPath = 'python'; // Ensure 'python' is in your PATH or provide the full path to the Python executable
-                    const scriptPath = path.join(__dirname, '../python/generate_doc.py');
+                    const pythonPath = 'python3'; // Ensure 'python' is in your PATH or provide the full path to the Python executable
+                    const scriptPath = path.join(__dirname, '/python/generate_doc.py');
 
                     const process = execFile(pythonPath, [scriptPath], (error, stdout, stderr) => {
                         if (error) {
-                            vscode.window.showErrorMessage(`Failed to generate documentation: ${stderr}`);
-                            console.error(`Error: ${stderr}`);
+                            console.error(`execFile error: ${error}`);
+                            vscode.window.showErrorMessage(`Failed to generate documentation: ${stderr || error.message || 'Unknown error'}`);
                             return;
                         }
+
+                        if (stderr) {
+                            console.error(`Python script error: ${stderr}`);
+                            vscode.window.showErrorMessage(`Error in Python script: ${stderr}`);
+                            return;
+                        }
+
+                        if (!stdout || stdout.trim().length === 0) {
+                            vscode.window.showErrorMessage('No documentation was generated. Please check your code or the Python script.');
+                            return;
+                        }
+
                         vscode.window.showInformationMessage('Documentation generated successfully');
                         editor.edit(editBuilder => {
                             editBuilder.insert(editor.selection.end, `\n\n${stdout}`);
                         });
+
                     });
 
                     // Send the selected code to the Python script
